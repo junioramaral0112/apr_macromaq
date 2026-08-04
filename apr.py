@@ -12,11 +12,11 @@ st.set_page_config(page_title="Gerador de Documentos SST", layout="wide")
 EXCEL_PATH = "banco_aprs.xlsx"
 
 # -----------------------------
-# MAPEAMENTO DOS TEMPLATES POR EMPRESA
+# MAPEAMENTO DOS TEMPLATES POR EMPRESA (Caminhos Relativos para o GitHub)
 # -----------------------------
 TEMPLATES_EMPRESAS = {
-    "Benteler": r"C:\Users\dilceu.gomes\Desktop\APR\T.SHE.046 Safe Job Analyses Bentler.docx",
-    "Macromaq": r"C:\Users\dilceu.gomes\Desktop\APR\T.SHE.046 Safe Job Analyses Macromaq.docx"
+    "Benteler": "T.SHE.046 Safe Job Analyses Bentler.docx",
+    "Macromaq": "T.SHE.046 Safe Job Analyses Macromaq.docx"
 }
 
 # -----------------------------
@@ -131,7 +131,7 @@ def substituir_docx(doc, mapeamento, passos_atividade):
 
 
 # -----------------------------
-# GERADOR PRINCIPAL (Agora recebe o caminho do template dinamicamente)
+# GERADOR PRINCIPAL
 # -----------------------------
 def gerar_documento(dados, atividade_selecionada, passos, caminho_template):
     if not os.path.exists(caminho_template):
@@ -162,7 +162,6 @@ def gerar_documento(dados, atividade_selecionada, passos, caminho_template):
 # -----------------------------
 st.title("🛠️ Gerador ATS - SSMA")
 
-# Nova seção de seleção do template/empresa
 st.subheader("📋 Configuração do Template")
 empresa_selecionada = st.selectbox("Selecione a Empresa cliente (Template):", list(TEMPLATES_EMPRESAS.keys()))
 caminho_template_escolhido = TEMPLATES_EMPRESAS[empresa_selecionada]
@@ -176,7 +175,6 @@ with col1:
     processo = st.text_input("Processo", "MANUTENÇÃO MECÂNICA")
 
 with col2:
-    # Sugere automaticamente o nome da empresa selecionada no campo Contratada, mas permite edição
     contratada = st.text_input("Contratada", empresa_selecionada.upper())
     local = st.text_input("Local", "OFICINA")
     area = st.text_input("Área", "EMPILHADEIRA")
@@ -194,7 +192,6 @@ if st.button("🚀 Gerar Documento", type="primary"):
     else:
         dados = {"contratada": contratada, "local": local, "area": area, "processo": processo}
         
-        # Passa o caminho do template escolhido para a função geradora
         resultado = gerar_documento(dados, atividade, passos, caminho_template_escolhido)
 
         if resultado:
@@ -204,4 +201,5 @@ if st.button("🚀 Gerar Documento", type="primary"):
                 resultado,
                 file_name=f"ATS_{empresa_selecionada}_{atividade.replace(' ', '_')}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            )
             )
