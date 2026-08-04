@@ -14,8 +14,8 @@ st.set_page_config(page_title="Gerador ATS - SSMA", layout="wide")
 
 BASE_PATH = os.getcwd()
 
-# Caminhos dos assets visuais
-FUNDO_PATH = os.path.join(BASE_PATH, "fundo.png")
+# Caminhos dos assets visuais (Corrigido para .jpg conforme o seu repositório)
+FUNDO_PATH = os.path.join(BASE_PATH, "fundo.jpg")
 LOGO_PATH = os.path.join(BASE_PATH, "logo.png")
 
 EXCEL_PATH = "banco_aprs.xlsx"
@@ -37,73 +37,77 @@ def get_base64(bin_file):
     return base64.b64encode(data).decode()
 
 def aplicar_layout():
-    try:
-        fundo = get_base64(FUNDO_PATH)
-        logo = get_base64(LOGO_PATH)
-        st.markdown(f"""
-        <style>
-        /* REMOVER BARRA LATERAL E NAVEGAÇÃO NATIVA */
-        [data-testid="stSidebar"], [data-testid="stSidebarNav"] {{
-            display: none;
-        }}
-
-        /* FORÇAR A IMAGEM DE FUNDO DA EMPILHADEIRA */
+    fundo = get_base64(FUNDO_PATH)
+    logo = get_base64(LOGO_PATH)
+    
+    if fundo:
+        estilo_fundo = f"""
         .stApp {{
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("data:image/png;base64,{fundo}") !important;
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("data:image/jpeg;base64,{fundo}") !important;
             background-size: cover !important;
             background-position: center center !important;
             background-attachment: fixed !important;
         }}
-        
-        .stApp > header {{
-            background-color: transparent !important;
-        }}
+        """
+    else:
+        estilo_fundo = ".stApp {{ background-color: #1e293b; }}"
 
-        .stSelectbox label, .stTextInput label, div[data-testid="stCheckbox"] label p {{
-            color: white !important;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-weight: bold;
-        }}
-        .stButton > button {{
-            background: #2c3e50;
-            color: #f9cc0b;
-            border: 2px solid #f9cc0b;
-            border-radius: 10px;
-            height: 55px;
-            font-weight: bold;
-            width: 100%;
-            font-size: 18px;
-        }}
-        .header-container {{
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.95);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }}
-        .footer {{
-            position: fixed;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 13px;
-            z-index: 999;
-        }}
-        </style>
-        <div class="header-container">
-            <img src="data:image/png;base64,{logo}" width="320">
-            <h1 style="margin-left:25px;color:#2c3e50;">Gerador ATS - SSMA</h1>
-        </div>
-        """, unsafe_allow_html=True)
-    except:
-        st.title("🛠️ Gerador ATS - SSMA")
+    st.markdown(f"""
+    <style>
+    /* REMOVER BARRA LATERAL E NAVEGAÇÃO NATIVA */
+    [data-testid="stSidebar"], [data-testid="stSidebarNav"] {{
+        display: none;
+    }}
+
+    {estilo_fundo}
+    
+    .stApp > header {{
+        background-color: transparent !important;
+    }}
+
+    .stSelectbox label, .stTextInput label, div[data-testid="stCheckbox"] label p {{
+        color: white !important;
+        background: rgba(0,0,0,0.7);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+    }}
+    .stButton > button {{
+        background: #2c3e50;
+        color: #f9cc0b;
+        border: 2px solid #f9cc0b;
+        border-radius: 10px;
+        height: 55px;
+        font-weight: bold;
+        width: 100%;
+        font-size: 18px;
+    }}
+    .header-container {{
+        display: flex;
+        align-items: center;
+        background: rgba(255,255,255,0.95);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }}
+    .footer {{
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+        z-index: 999;
+    }}
+    </style>
+    <div class="header-container">
+        <img src="data:image/png;base64,{logo}" width="320">
+        <h1 style="margin-left:25px;color:#2c3e50;">Gerador ATS - SSMA</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
 aplicar_layout()
 
