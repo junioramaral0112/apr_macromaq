@@ -7,6 +7,7 @@ import io
 import os
 import copy
 from docx.table import _Row
+from urllib.parse import quote
 import base64
 
 # --- CONFIGURAÇÕES ---
@@ -14,11 +15,11 @@ st.set_page_config(page_title="Gerador ATS - SSMA", layout="wide")
 
 BASE_PATH = os.getcwd()
 
-# Caminhos dos assets visuais (Corrigido para .jpg conforme o seu repositório)
+# Caminhos dos assets visuais
 FUNDO_PATH = os.path.join(BASE_PATH, "fundo.jpg")
 LOGO_PATH = os.path.join(BASE_PATH, "logo.png")
 
-EXCEL_PATH = "banco_aprs.xlsx"
+SHEET_ID = "1y98U3eK7JXJqQaMC0i7eFbwpvp97Nuyeml5Dis0UCUg"
 
 # -----------------------------
 # MAPEAMENTO DOS TEMPLATES POR EMPRESA
@@ -111,13 +112,19 @@ def aplicar_layout():
 
 aplicar_layout()
 
+# Botão para limpar cache e atualizar dados da planilha instantaneamente
+if st.button("🔄 Atualizar Dados da Planilha Agora"):
+    st.cache_data.clear()
+    st.rerun()
+
 # -----------------------------
-# LEITURA DO EXCEL
+# LEITURA DA ABA "Banco_APRs" DO GOOGLE SHEETS
 # -----------------------------
-@st.cache_data
-def carregar_dados():
-    if os.path.exists(EXCEL_PATH):
-        df = pd.read_excel(EXCEL_PATH)
+@st.cache_data(ttl=300)
+def carregar_dados_sheets():
+    try:
+        url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={quote('Banco_APRs'.strip())}"
+        df = pd.read_csv(url, dtype=str)
         df.columns = df.columns.str.lower().str.strip()
         df.rename(columns={
             'ações': 'acoes', 'acao': 'acoes',
@@ -125,9 +132,10 @@ def carregar_dados():
             'risco': 'risco', 'área': 'area'
         }, inplace=True)
         return df
-    return pd.DataFrame()
+    except Exception as e:
+        return pd.DataFrame()
 
-df_excel = carregar_dados()
+df_excel = carregar_dados_sheets()
 LISTA_ATIVIDADES = df_excel["atividade"].dropna().unique().tolist() if not df_excel.empty else []
 
 
@@ -261,7 +269,7 @@ st.divider()
 col1, col2 = st.columns(2)
 
 with col1:
-    atividade = st.selectbox("Atividade", LISTA_ATIVIDADES)
+    atividade = st.selectbox("Atividade", LISTA_ATIVIDADES) if not df_excel.empty else st.selectbox("Atividade", ["Nenhuma atividade carregada"])
     processo = st.text_input("Processo", "MANUTENÇÃO MECÂNICA")
 
 with col2:
@@ -271,12 +279,12 @@ with col2:
 
 passos = df_excel[df_excel["atividade"] == atividade] if not df_excel.empty else pd.DataFrame()
 
-st.subheader("Prévia dos dados do Excel")
+st.subheader("Prévia dos dados da aba 'Banco_APRs'")
 st.dataframe(passos, use_container_width=True)
 
 if st.button("🚀 Gerar Documento", type="primary"):
     if df_excel.empty:
-        st.error("O banco de dados do Excel não foi carregado corretamente.")
+        st.error("A aba 'Banco_APRs' não foi carregada corretamente do Google Sheets. Verifique o compartilhamento da planilha.")
     elif passos.empty:
         st.warning("Nenhum passo encontrado para a atividade selecionada.")
     else:
