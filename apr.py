@@ -2,12 +2,21 @@ import streamlit as st
 import pandas as pd
 from docx import Document
 from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import os
 import copy
 from docx.table import _Row
+import base64
 
-st.set_page_config(page_title="Gerador de Documentos SST", layout="wide")
+# --- CONFIGURAÇÕES ---
+st.set_page_config(page_title="Gerador ATS - SSMA", layout="wide")
+
+BASE_PATH = os.getcwd()
+
+# Caminhos dos assets visuais
+FUNDO_PATH = os.path.join(BASE_PATH, "fundo.png")
+LOGO_PATH = os.path.join(BASE_PATH, "logo.png")
 
 EXCEL_PATH = "banco_aprs.xlsx"
 
@@ -18,6 +27,79 @@ TEMPLATES_EMPRESAS = {
     "Benteler": "T.SHE.046 Safe Job Analyses Bentler.docx",
     "Macromaq": "T.SHE.046 Safe Job Analyses Macromaq.docx"
 }
+
+# --- LAYOUT E CSS (IDÊNTICO AO GESTÃO SSMA) ---
+def get_base64(bin_file):
+    if not os.path.exists(bin_file):
+        return ""
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+def aplicar_layout():
+    try:
+        fundo = get_base64(FUNDO_PATH)
+        logo = get_base64(LOGO_PATH)
+        st.markdown(f"""
+        <style>
+        /* REMOVER BARRA LATERAL E NAVEGAÇÃO NATIVA */
+        [data-testid="stSidebar"], [data-testid="stSidebarNav"] {{
+            display: none;
+        }}
+
+        .stApp {{
+            background-image: url("data:image/png;base64,{fundo}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+        .stSelectbox label, .stTextInput label, div[data-testid="stCheckbox"] label p {{
+            color: white !important;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+        }}
+        .stButton > button {{
+            background: #2c3e50;
+            color: #f9cc0b;
+            border: 2px solid #f9cc0b;
+            border-radius: 10px;
+            height: 55px;
+            font-weight: bold;
+            width: 100%;
+            font-size: 18px;
+        }}
+        .header-container {{
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }}
+        .footer {{
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            z-index: 999;
+        }}
+        </style>
+        <div class="header-container">
+            <img src="data:image/png;base64,{logo}" width="320">
+            <h1 style="margin-left:25px;color:#2c3e50;">Gerador ATS - SSMA</h1>
+        </div>
+        """, unsafe_allow_html=True)
+    except:
+        st.title("🛠️ Gerador ATS - SSMA")
+
+aplicar_layout()
 
 # -----------------------------
 # LEITURA DO EXCEL
@@ -160,8 +242,6 @@ def gerar_documento(dados, atividade_selecionada, passos, caminho_template):
 # -----------------------------
 # INTERFACE STREAMLIT
 # -----------------------------
-st.title("🛠️ Gerador ATS - SSMA")
-
 st.subheader("📋 Configuração do Template")
 empresa_selecionada = st.selectbox("Selecione a Empresa cliente (Template):", list(TEMPLATES_EMPRESAS.keys()))
 caminho_template_escolhido = TEMPLATES_EMPRESAS[empresa_selecionada]
@@ -202,3 +282,6 @@ if st.button("🚀 Gerar Documento", type="primary"):
                 file_name=f"ATS_{empresa_selecionada}_{atividade.replace(' ', '_')}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
+
+# --- FOOTER ---
+st.markdown("""<div class="footer">© 2026 Gestão Documentos | Desenvolvido por: Dilceu Junior</div>""", unsafe_allow_html=True)
