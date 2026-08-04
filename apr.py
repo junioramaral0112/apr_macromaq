@@ -28,7 +28,7 @@ TEMPLATES_EMPRESAS = {
     "Macromaq": "T.SHE.046 Safe Job Analyses Macromaq.docx"
 }
 
-# --- LAYOUT E CSS (IDÊNTICO AO GESTÃO SSMA) ---
+# --- LAYOUT E CSS ---
 def get_base64(bin_file):
     if not os.path.exists(bin_file):
         return ""
@@ -47,12 +47,18 @@ def aplicar_layout():
             display: none;
         }}
 
+        /* FORÇAR A IMAGEM DE FUNDO DA EMPILHADEIRA */
         .stApp {{
-            background-image: url("data:image/png;base64,{fundo}");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("data:image/png;base64,{fundo}") !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
         }}
+        
+        .stApp > header {{
+            background-color: transparent !important;
+        }}
+
         .stSelectbox label, .stTextInput label, div[data-testid="stCheckbox"] label p {{
             color: white !important;
             background: rgba(0,0,0,0.7);
@@ -73,7 +79,7 @@ def aplicar_layout():
         .header-container {{
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 30px;
