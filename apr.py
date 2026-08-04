@@ -12,7 +12,7 @@ st.set_page_config(page_title="Gerador de Documentos SST", layout="wide")
 EXCEL_PATH = "banco_aprs.xlsx"
 
 # -----------------------------
-# MAPEAMENTO DOS TEMPLATES POR EMPRESA (Caminhos Relativos para o GitHub)
+# MAPEAMENTO DOS TEMPLATES POR EMPRESA
 # -----------------------------
 TEMPLATES_EMPRESAS = {
     "Benteler": "T.SHE.046 Safe Job Analyses Bentler.docx",
@@ -201,5 +201,4 @@ if st.button("🚀 Gerar Documento", type="primary"):
                 resultado,
                 file_name=f"ATS_{empresa_selecionada}_{atividade.replace(' ', '_')}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
             )
